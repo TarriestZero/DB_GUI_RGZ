@@ -21,7 +21,7 @@ class DBWorker:
 
     def show_all_table(self, t_name):
         request = "SELECT "
-        head = self.get_column(t_name)
+        head = self.get_column_name(t_name)
         for row in head[:len(head) - 1]:
             request = request + "[%s], " % row
         request = request + "[%s] " % head[len(head) - 1] + "FROM " + t_name
@@ -32,7 +32,7 @@ class DBWorker:
         except:
             print("Нет записей")
 
-    def get_column(self, t_name):
+    def get_column_name(self, t_name):
         self.cursor.execute("SELECT * FROM %(n)s" % {'n': t_name})
         return [heading[0] for heading in self.cursor.description]
 

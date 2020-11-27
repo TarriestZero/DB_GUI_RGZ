@@ -47,9 +47,26 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for row in tables:
             self.listWidget.addItem(str(row[0]))
 
-        self.pushButton.clicked.connect(lambda: show_table())
+        # -- Кнопки
+        self.pushButton_3.clicked.connect(lambda: self.check_text())
+        self.pushButton_2.clicked.connect(lambda: self.check_combo())
+        # -- Лист таблиц
         self.listWidget.itemClicked.connect(show_table)
 
+        self.ComboBox.addItem("sadg")
+        self.ComboBox.addItem("erger")
+
+    def check_combo(self):  # Проверяем выбранный текст в ComboBox
+        msg = str(self.ComboBox.currentText())
+        print(msg)
+
+    def check_text(self):
+        msg = self.lineEdit.text()
+        print(msg)
+        self.lineEdit.clear()
+
+    def add_in_db(self):
+        pass
 
 def main():
     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
