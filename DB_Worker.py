@@ -35,3 +35,10 @@ class DBWorker:
     def get_column(self, t_name):
         self.cursor.execute("SELECT * FROM %(n)s" % {'n': t_name})
         return [heading[0] for heading in self.cursor.description]
+
+    def get_name_all_tables(self):
+        buf = ''
+        self.cursor.execute("""SELECT name FROM sqlite_master
+                                WHERE type='table' AND name != 'sqlite_sequence' 
+                                """)
+        return self.cursor.fetchall()

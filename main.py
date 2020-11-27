@@ -6,17 +6,17 @@ import table
 import sys
 
 
-def printf():
-    print('sdfs')
+def printf(item):
+    print('vibor:' + str(item.text()))
 
 
-def show_table():  # Создание диалогового окна с таблицей
+def show_table(item):  # Создание диалогового окна с таблицей
     DialogWindow = QtWidgets.QDialog()
     DialogWindow.resize(1000, 1000)
     DialogWindow.setWindowTitle("Dialog")
     table = QtWidgets.QTableWidget(DialogWindow)
     db = DB_Worker.DBWorker()
-    buf, head = db.show_all_table("Buyers")
+    buf, head = db.show_all_table(str(item.text()))
     table.resize(500, 500)
     table.setColumnCount(len(buf[0]))
     table.setRowCount(len(buf))
@@ -42,7 +42,13 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # и т.д. в файле design.py
         super().__init__()
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+        db = DB_Worker.DBWorker()
+        tables = db.get_name_all_tables()
+        for row in tables:
+            self.listWidget.addItem(str(row[0]))
+
         self.pushButton.clicked.connect(lambda: show_table())
+        self.listWidget.itemClicked.connect(show_table)
 
 
 def main():
