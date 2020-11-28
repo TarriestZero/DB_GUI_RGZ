@@ -41,8 +41,11 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # Это здесь нужно для доступа к переменным, методам
         # и т.д. в файле design.py
         super().__init__()
-        self.req_buttons = list()   # Копки создаваемые для запросов
+
+        self.req_LineEdit = list()   # Заполняемые строки для запросов
         self.req_label = list()     # Названия полей заполнения для запросов
+
+
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         db = DB_Worker.DBWorker()
         tables = db.get_name_all_tables()
@@ -77,10 +80,12 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     def create_item_request(self):
         self.__del_last_but__()
+        self.req_button = QtWidgets.QPushButton(self.groupBox)  # Кнопка для проведения запроса
         y = 80
-        msg = str(self.ComboBox.currentText())
+        t_name = str(self.ComboBox.currentText())
+        self.req_button.clicked.connect(lambda: self.request(t_name))
         db = DB_Worker.DBWorker()
-        buf, head = db.show_all_table(msg)
+        buf, head = db.show_all_table(t_name)
         for i in range(len(head)):
             label_in_group = QtWidgets.QLabel(self.groupBox)
             line_in_group = QtWidgets.QLineEdit(self.groupBox)
@@ -91,19 +96,35 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             label_in_group.setText(head[i])
             line_in_group.show()
             label_in_group.show()
-            self.req_buttons.append(line_in_group)
+            self.req_LineEdit.append(line_in_group)
             self.req_label.append(label_in_group)
             y += 45
+        self.req_button.setGeometry(QtCore.QRect(150, y + 50, 150, 40))
+        self.req_button.setText("Request")
+        self.req_button.setObjectName("ReqButton")
+        self.req_button.show()
+
+    def request(self, t_name):
+        req = dict()
+        i = 0
+        for row in self.req_LineEdit:
+            req[self.req_label[i].text()] = row.text()
+            row.clear()
+            i += 1
+        db = DB_Worker.DBWorker()
+        db.request_combobox(t_name, req)
+
 
     def __del_last_but__(self):
         try:
-            for row in self.req_buttons:
+            for row in self.req_LineEdit:
                 row.deleteLater()
             for row in self.req_label:
                 row.setText("")
                 row.deleteLater()
             self.req_label.clear()
-            self.req_buttons.clear()
+            self.req_LineEdit.clear()
+            self.req_button.deleteLater()
         except:
             pass
 
