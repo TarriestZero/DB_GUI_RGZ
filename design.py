@@ -36,16 +36,6 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
-        self.pushButton_3 = QtWidgets.QPushButton(self.tab_2)
-        self.pushButton_3.setGeometry(QtCore.QRect(50, 360, 89, 25))
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.label = QtWidgets.QLabel(self.tab_2)
-        self.label.setGeometry(QtCore.QRect(40, 380, 91, 51))
-        self.label.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.label.setObjectName("label")
-        self.lineEdit = QtWidgets.QLineEdit(self.tab_2)
-        self.lineEdit.setGeometry(QtCore.QRect(30, 290, 211, 41))
-        self.lineEdit.setObjectName("lineEdit")
         self.ComboBox = QtWidgets.QComboBox(self.tab_2)
         self.ComboBox.setGeometry(QtCore.QRect(40, 70, 86, 25))
         self.ComboBox.setObjectName("ComboBox")
@@ -70,9 +60,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-
-
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -80,8 +67,6 @@ class Ui_MainWindow(object):
 "покупатели"))
         self.pushButton_2.setText(_translate("MainWindow", "PushButton"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
-        self.pushButton_3.setText(_translate("MainWindow", "PushButton"))
-        self.label.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Check</p></body></html>"))
         self.ButtonComboBox.setText(_translate("MainWindow", "Select DB"))
         self.groupBox.setTitle(_translate("MainWindow", "GroupBox"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))

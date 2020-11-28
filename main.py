@@ -2,6 +2,7 @@ import DB_Worker
 from PyQt5 import QtWidgets
 from PyQt5 import QtCore, QtGui
 import design
+import dialog
 import table
 import sys
 
@@ -54,7 +55,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
 
         # -- Кнопки
-        self.pushButton_3.clicked.connect(lambda: self.check_text_in_LineEdit())
         self.ButtonComboBox.clicked.connect(lambda: self.create_item_request())
         # -- Лист таблиц
         self.listWidget.itemClicked.connect(show_table)
@@ -66,10 +66,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         tables = db.get_name_all_tables()
         for row in tables:
             self.ComboBox.addItem(str(row[0]))
-
-    def check_combo(self):  # Проверяем выбранный текст в ComboBox
-        msg = str(self.ComboBox.currentText())
-        print(msg)
 
     def check_text_in_LineEdit(self):
         msg = self.lineEdit.text()
@@ -111,8 +107,21 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             req[self.req_label[i].text()] = row.text()
             row.clear()
             i += 1
+        for row in list(req.items()):
+            if row[1] == "":
+                req.pop(row[0])
         db = DB_Worker.DBWorker()
-        db.request_combobox(t_name, req)
+        tf, info = db.check_type(t_name, req)
+        if tf:
+            db.request_combobox(t_name, req)
+        else:
+
+            DialogWindow = QtWidgets.QDialog()
+            setupwin = dialog.Ui_Dialog()
+            setupwin.setupUi(DialogWindow)
+            setupwin.retranslateUi(DialogWindow, "error in %(d)s need %(i)s" % {'d': str(info[1]), 'i': str(info[2])})
+            DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+            DialogWindow.exec_()
 
 
     def __del_last_but__(self):

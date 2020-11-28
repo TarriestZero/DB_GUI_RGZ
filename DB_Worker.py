@@ -19,6 +19,20 @@ class DBWorker:
     def sample_request(self):
         pass
 
+    def check_type(self, t_name, data):
+        self.cursor.execute("PRAGMA table_info([%s])" % t_name)
+        for row in self.cursor.fetchall():
+            if row[2] == "INTEGER":
+                try:
+                    print(data[row[1]])
+                    try:
+                        int(data[row[1]])
+                    except:
+                        return False, row
+                except:
+                    pass
+        return True, 0
+
     def request_combobox(self, t_name, data):   # Запрос в базу данных из groupbox
         reqin = "INSERT INTO [%s] (" % t_name
         reqval = "VALUES ("
