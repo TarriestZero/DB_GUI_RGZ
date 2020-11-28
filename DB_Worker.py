@@ -1,5 +1,6 @@
 import sqlite3
 import os
+import json
 
 
 class DBWorker:
@@ -19,6 +20,18 @@ class DBWorker:
     def sample_request(self):
         pass
 
+    def check_repeat(self, t_name, data, repeaters):  # поиск повторяющихся записей по конкретным полям
+        for row in repeaters:
+            sql = "SELECT [%(r)s] FROM [%(t)s] WHERE [%(r)s] = %(d)s" % {'r': row, 't': t_name, 'd': data[row]}
+            self.cursor.execute(sql)
+            try:
+                g = self.cursor.fetchone()[0]
+                if str(g) == data[row]:
+                    return "Совпадает поле %(r)s" % {'r': row}
+            except:
+                pass
+        return True
+
     def check_type(self, t_name, data):
         self.cursor.execute("PRAGMA table_info([%s])" % t_name)
         for row in self.cursor.fetchall():
@@ -33,7 +46,7 @@ class DBWorker:
                     pass
         return True, 0
 
-    def request_combobox(self, t_name, data):   # Запрос в базу данных из groupbox
+    def request_combobox(self, t_name, data):  # Запрос в базу данных из groupbox
         reqin = "INSERT INTO [%s] (" % t_name
         reqval = "VALUES ("
         for row in list(data.items())[:len(data) - 1]:
@@ -61,7 +74,7 @@ class DBWorker:
         self.cursor.execute(request)
         try:
             buf = self.cursor.fetchall()
-            return buf, head    #[heading[0] for heading in self.cursor.description]
+            return buf, head  # [heading[0] for heading in self.cursor.description]
         except:
             print("Нет записей")
 

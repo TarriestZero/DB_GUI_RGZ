@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui
 import design
 import dialog
 import table
+import json
 import sys
 
 
@@ -11,7 +12,16 @@ def printf(item):
     print('vibor:' + str(item.text()))
 
 
-def show_table(item):  # Создание диалогового окна с таблицей
+def error_dialog(text):
+    DialogWindow = QtWidgets.QDialog()
+    setupwin = dialog.Ui_Dialog()
+    setupwin.setupUi(DialogWindow)
+    setupwin.retranslateUi(DialogWindow, text)
+    DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+    DialogWindow.exec_()
+
+
+def table_dialog(item):  # Создание диалогового окна с таблицей
     DialogWindow = QtWidgets.QDialog()
     DialogWindow.resize(1000, 1000)
     DialogWindow.setWindowTitle("Dialog")
@@ -57,9 +67,10 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # -- Кнопки
         self.ButtonComboBox.clicked.connect(lambda: self.create_item_request())
         # -- Лист таблиц
-        self.listWidget.itemClicked.connect(show_table)
+        self.listWidget.itemClicked.connect(table_dialog)
 
         self.init_combobox()
+
 
     def init_combobox(self):
         db = DB_Worker.DBWorker()
@@ -71,6 +82,12 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         msg = self.lineEdit.text()
         print(msg)
         self.lineEdit.clear()
+
+    def init_dict_proh(self):
+        with open("package.json", "r") as read_file:
+            self.prohibition = json.load(read_file)
+
+
 
     # -------------- Создание и работа с GroupBox запросами в DB
 
@@ -101,6 +118,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.req_button.show()
 
     def request(self, t_name):
+        self.init_dict_proh()
         req = dict()
         i = 0
         for row in self.req_LineEdit:
@@ -110,18 +128,21 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for row in list(req.items()):
             if row[1] == "":
                 req.pop(row[0])
+                try:    # пытаемся удалить пустые строки из исключения
+                    self.prohibition[t_name].remove(row[0])
+                except:
+                    pass
         db = DB_Worker.DBWorker()
         tf, info = db.check_type(t_name, req)
         if tf:
-            db.request_combobox(t_name, req)
+            ttf = db.check_repeat(t_name, req, self.prohibition[t_name])
+            if ttf == True:
+                db.request_combobox(t_name, req)
+            else:
+                error_dialog(ttf)
         else:
+            error_dialog("error in %(d)s need %(i)s" % {'d': str(info[1]), 'i': str(info[2])})
 
-            DialogWindow = QtWidgets.QDialog()
-            setupwin = dialog.Ui_Dialog()
-            setupwin.setupUi(DialogWindow)
-            setupwin.retranslateUi(DialogWindow, "error in %(d)s need %(i)s" % {'d': str(info[1]), 'i': str(info[2])})
-            DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-            DialogWindow.exec_()
 
 
     def __del_last_but__(self):

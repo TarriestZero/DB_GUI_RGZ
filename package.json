@@ -1,0 +1,13 @@
+{
+  "Buyers": [
+    "ClientId",
+    "Phone Number"
+  ],
+  "Orders": [
+    "OrdId"
+  ],
+  "Product": [
+    "ProdId",
+    "Name"
+  ]
+}
