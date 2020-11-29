@@ -55,16 +55,12 @@ class DBWorker:
     def request_combobox(self, t_name, data):  # Запрос в базу данных из groupbox
         reqin = "INSERT INTO [%s] (" % t_name
         reqval = "VALUES ("
-        for row in list(data.items())[:len(data) - 1]:
-            if row[1] != "":
+        for row in list(data.items())[:len(data)]:
                 reqin = reqin + " [" + row[0] + "],"
                 reqval = reqval + " '" + row[1] + "',"
-        if list(data.items())[len(data) - 1][1] != "":
-            reqin = reqin + " [" + list(data.items())[len(data) - 1][0] + "]"
-            reqval = reqval + " '" + list(data.items())[len(data) - 1][1] + "'"
-        else:
-            reqin = reqin[:len(reqin) - 1]
-            reqval = reqval[:len(reqval) - 1]
+
+        reqin = reqin[:len(reqin) - 1]
+        reqval = reqval[:len(reqval) - 1]
         reqin = reqin + ")"
         reqval = reqval + ")"
         print(reqin + " " + reqval)
