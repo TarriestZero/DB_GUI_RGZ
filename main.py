@@ -71,21 +71,14 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.init_combobox()
 
+        with open("package.json", "r") as read_file:
+            self.conf = json.load(read_file)
 
     def init_combobox(self):
         db = DB_Worker.DBWorker()
         tables = db.get_name_all_tables()
         for row in tables:
             self.ComboBox.addItem(str(row[0]))
-
-    def check_text_in_LineEdit(self):
-        msg = self.lineEdit.text()
-        print(msg)
-        self.lineEdit.clear()
-
-    def init_dict_proh(self):
-        with open("package.json", "r") as read_file:
-            self.prohibition = json.load(read_file)
 
 
 
@@ -118,24 +111,29 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.req_button.show()
 
     def request(self, t_name):
-        self.init_dict_proh()
         req = dict()
         i = 0
         for row in self.req_LineEdit:
             req[self.req_label[i].text()] = row.text()
             row.clear()
             i += 1
+        db = DB_Worker.DBWorker()
+        tf, info = db.check_not_null(t_name, req, self.conf[t_name][0]["AEncrem"])
+        if not tf:
+            error_dialog(info)
+            return
+
         for row in list(req.items()):
             if row[1] == "":
                 req.pop(row[0])
                 try:    # пытаемся удалить пустые строки из исключения
-                    self.prohibition[t_name].remove(row[0])
+                    self.conf[t_name][0]["Punisher"].remove(row[0])
                 except:
                     pass
-        db = DB_Worker.DBWorker()
+
         tf, info = db.check_type(t_name, req)
         if tf:
-            ttf = db.check_repeat(t_name, req, self.prohibition[t_name])
+            ttf = db.check_repeat(t_name, req, self.conf[t_name][0]["Punisher"])
             if ttf == True:
                 db.request_combobox(t_name, req)
             else:
@@ -160,8 +158,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     # ---------------
 
-    def add_in_db(self):
-        pass
 
 
 def main():

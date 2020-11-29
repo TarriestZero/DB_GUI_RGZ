@@ -1,13 +1,35 @@
 {
   "Buyers": [
-    "ClientId",
-    "Phone Number"
+    {
+      "Punisher": [
+        "ClientId",
+        "Phone Number"
+      ],
+      "AEncrem": [
+        "ClientId"
+      ]
+
+    }
   ],
   "Orders": [
-    "OrdId"
+    {
+      "Punisher": [
+        "OrdId"
+      ],
+      "AEncrem": [
+        "OrdId"
+      ]
+    }
   ],
   "Product": [
-    "ProdId",
-    "Name"
+    {
+      "Punisher":[
+        "ProdId",
+        "Name"
+      ],
+      "AEncrem": [
+        "ProdId"
+      ]
+    }
   ]
 }

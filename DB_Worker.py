@@ -22,14 +22,12 @@ class DBWorker:
 
     def check_repeat(self, t_name, data, repeaters):  # поиск повторяющихся записей по конкретным полям
         for row in repeaters:
-            sql = "SELECT [%(r)s] FROM [%(t)s] WHERE [%(r)s] = %(d)s" % {'r': row, 't': t_name, 'd': data[row]}
+            sql = "SELECT count([%(r)s])>0 FROM [%(t)s] " \
+                  "WHERE [%(r)s] = %(d)s" % {'r': row, 't': t_name, 'd': data[row]}
             self.cursor.execute(sql)
-            try:
-                g = self.cursor.fetchone()[0]
-                if str(g) == data[row]:
-                    return "Совпадает поле %(r)s" % {'r': row}
-            except:
-                pass
+            g = self.cursor.fetchone()[0]
+            if g == 1:
+                return "Совпадает поле %(r)s" % {'r': row}
         return True
 
     def check_type(self, t_name, data):
@@ -44,6 +42,14 @@ class DBWorker:
                         return False, row
                 except:
                     pass
+        return True, 0
+
+    def check_not_null(self, t_name, data, encrem):
+        self.cursor.execute("PRAGMA table_info([%s])" % t_name)
+        for row in self.cursor.fetchall():
+            if row[3] == 1 and not (row[1] in encrem):
+                if data[row[1]] == "":
+                    return False, "Not Null field: %s" % row[1]
         return True, 0
 
     def request_combobox(self, t_name, data):  # Запрос в базу данных из groupbox
