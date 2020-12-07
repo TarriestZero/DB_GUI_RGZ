@@ -22,6 +22,7 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.tabWidget = QtWidgets.QTabWidget(self.centralwidget)
         self.tabWidget.setObjectName("tabWidget")
+
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
         self.pushButton = QtWidgets.QPushButton(self.tab)
@@ -34,6 +35,7 @@ class Ui_MainWindow(object):
         self.listWidget.setGeometry(QtCore.QRect(80, 110, 256, 192))
         self.listWidget.setObjectName("listWidget")
         self.tabWidget.addTab(self.tab, "")
+
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setObjectName("tab_2")
         self.ComboBox = QtWidgets.QComboBox(self.tab_2)
@@ -46,6 +48,16 @@ class Ui_MainWindow(object):
         self.groupBox.setGeometry(QtCore.QRect(320, 20, 441, 461))
         self.groupBox.setObjectName("groupBox")
         self.tabWidget.addTab(self.tab_2, "")
+
+
+        self.tab_3 = QtWidgets.QWidget()
+        self.tab_3.setObjectName("tab_3")
+        self.pushButton_SQB = QtWidgets.QPushButton(self.tab_3)
+        self.pushButton_SQB.setGeometry(QtCore.QRect(20, 30, 211, 81))
+        self.pushButton_SQB.setObjectName("SelectQueryButton")
+        self.tabWidget.addTab(self.tab_3, "")
+
+
         self.verticalLayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -66,7 +78,9 @@ class Ui_MainWindow(object):
         self.pushButton.setText(_translate("MainWindow", "Вывести таблицу \n"
 "покупатели"))
         self.pushButton_2.setText(_translate("MainWindow", "PushButton"))
+        self.pushButton_SQB.setText(_translate("MainWindow", "Query"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Tab 1"))
         self.ButtonComboBox.setText(_translate("MainWindow", "Select DB"))
         self.groupBox.setTitle(_translate("MainWindow", "GroupBox"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Tab 2"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Tab 3"))

@@ -8,8 +8,28 @@ import json
 import sys
 
 
-def printf(item):
-    print('vibor:' + str(item.text()))
+def info_table_dialog():
+    db = DB_Worker.DBWorker()
+    buf, head = db.get_info_table()
+    DialogWindow = QtWidgets.QDialog()
+    DialogWindow.resize(1000, 1000)
+    DialogWindow.setWindowTitle("Dialog")
+    table = QtWidgets.QTableWidget(DialogWindow)
+    table.resize(500, 500)
+    table.setColumnCount(len(buf[0]))
+    table.setRowCount(len(buf))
+    table.setHorizontalHeaderLabels(head)
+    row = 0
+    for tup in buf:
+        col = 0
+        for item in tup:
+            cellinfo = QtWidgets.QTableWidgetItem(str(item))
+            table.setItem(row, col, cellinfo)
+            col += 1
+        row += 1
+
+    DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+    DialogWindow.exec_()
 
 
 def error_dialog(text):
@@ -65,6 +85,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
 
         # -- Кнопки
+        self.pushButton_SQB.clicked.connect(lambda: info_table_dialog())
         self.ButtonComboBox.clicked.connect(lambda: self.create_item_request())
         # -- Лист таблиц
         self.listWidget.itemClicked.connect(table_dialog)

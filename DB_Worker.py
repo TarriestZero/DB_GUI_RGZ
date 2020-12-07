@@ -11,8 +11,15 @@ class DBWorker:
     def __del__(self):
         self.db.close()
 
-    def add(self):
-        pass
+    def get_info_table(self):
+        head = ["First Name", "Phone Number", "Date", "Name", "Price"]
+        self.cursor.execute(""" 
+                            SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price
+                            FROM Buyers
+                            JOIN Orders ON Buyers.ClientId = Orders.ClientId
+                            JOIN Product ON Orders.ProdId = Product.ProdId
+                            """)
+        return self.cursor.fetchall(), head
 
     def dell(self):
         pass
