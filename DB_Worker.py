@@ -17,8 +17,12 @@ class DBWorker:
     def dell(self):
         pass
 
-    def sample_request(self):
-        pass
+    def get_only_one_table(self, t_name, data):
+        self.cursor.execute("SELECT [%(d)s] FROM [%(t)s]" % {'d': data, 't': t_name})
+        buf = list()
+        for row in self.cursor.fetchall():
+            buf.append(row)
+        return buf
 
     def check_repeat(self, t_name, data, repeaters):  # поиск повторяющихся записей по конкретным полям
         for row in repeaters:

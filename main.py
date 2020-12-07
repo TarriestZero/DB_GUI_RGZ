@@ -55,7 +55,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.req_LineEdit = list()   # Заполняемые строки для запросов
         self.req_label = list()     # Названия полей заполнения для запросов
-
+        self.combobox_req = list()  # комбобоксы для заполнения при запросе
 
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         db = DB_Worker.DBWorker()
@@ -93,16 +93,29 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         db = DB_Worker.DBWorker()
         buf, head = db.show_all_table(t_name)
         for i in range(len(head)):
+            if list(self.conf[t_name][0]["Drop-down_list"][0].keys()).count(head[i]):
+                ComboBox = QtWidgets.QComboBox(self.groupBox)
+                ComboBox.setGeometry(QtCore.QRect(200, y, 150, 40))
+                ComboBox.setObjectName("ComboBoxForReq")
+                lines = db.get_only_one_table(self.conf[t_name][0]["Drop-down_list"][0][head[i]][0],
+                                              self.conf[t_name][0]["Drop-down_list"][0][head[i]][1])
+                for row in lines:
+                    ComboBox.addItem(row[0])
+
+                ComboBox.show()
+                self.combobox_req.append(ComboBox)
+            else:
+                line_in_group = QtWidgets.QLineEdit(self.groupBox)
+                line_in_group.setGeometry(QtCore.QRect(200, y, 150, 40))
+                line_in_group.setObjectName("LineForReq")
+                line_in_group.show()
+                self.req_LineEdit.append(line_in_group)
+
             label_in_group = QtWidgets.QLabel(self.groupBox)
-            line_in_group = QtWidgets.QLineEdit(self.groupBox)
             label_in_group.setGeometry(QtCore.QRect(100, y, 150, 40))
-            line_in_group.setGeometry(QtCore.QRect(200, y, 150, 40))
             label_in_group.setObjectName("LabelForReq")
-            line_in_group.setObjectName("LineForReq")
             label_in_group.setText(head[i])
-            line_in_group.show()
             label_in_group.show()
-            self.req_LineEdit.append(line_in_group)
             self.req_label.append(label_in_group)
             y += 45
         self.req_button.setGeometry(QtCore.QRect(150, y + 50, 150, 40))
@@ -150,8 +163,12 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             for row in self.req_label:
                 row.setText("")
                 row.deleteLater()
+            for row in self.combobox_req:
+                row.deleteLater()
+
             self.req_label.clear()
             self.req_LineEdit.clear()
+            self.combobox_req.clear()
             self.req_button.deleteLater()
         except:
             pass
