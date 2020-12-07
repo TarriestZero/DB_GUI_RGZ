@@ -55,7 +55,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         self.req_LineEdit = list()   # Заполняемые строки для запросов
         self.req_label = list()     # Названия полей заполнения для запросов
-        self.combobox_req = list()  # комбобоксы для заполнения при запросе
+        self.req_ComboBox = list()  # комбобоксы для заполнения при запросе
 
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
         db = DB_Worker.DBWorker()
@@ -103,7 +103,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                     ComboBox.addItem(row[0])
 
                 ComboBox.show()
-                self.combobox_req.append(ComboBox)
+                self.req_ComboBox.append(ComboBox)
             else:
                 line_in_group = QtWidgets.QLineEdit(self.groupBox)
                 line_in_group.setGeometry(QtCore.QRect(200, y, 150, 40))
@@ -126,11 +126,19 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
     def request(self, t_name):
         req = dict()
         i = 0
+        db = DB_Worker.DBWorker()
         for row in self.req_LineEdit:
             req[self.req_label[i].text()] = row.text()
             row.clear()
             i += 1
-        db = DB_Worker.DBWorker()
+        for row in self.req_ComboBox:
+            req[self.req_label[i].text()] = db.get_id(
+                    self.conf[t_name][0]["Drop-down_list"][0][self.req_label[i].text()][0],
+                    self.req_label[i].text(),
+                    self.conf[t_name][0]["Drop-down_list"][0][self.req_label[i].text()][1],
+                    row.currentText())
+            i += 1
+
         tf, info = db.check_not_null(t_name, req, self.conf[t_name][0]["AEncrem"])
         if not tf:
             error_dialog(info)
@@ -163,12 +171,12 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             for row in self.req_label:
                 row.setText("")
                 row.deleteLater()
-            for row in self.combobox_req:
+            for row in self.req_ComboBox:
                 row.deleteLater()
 
             self.req_label.clear()
             self.req_LineEdit.clear()
-            self.combobox_req.clear()
+            self.req_ComboBox.clear()
             self.req_button.deleteLater()
         except:
             pass

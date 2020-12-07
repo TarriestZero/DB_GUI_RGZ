@@ -17,6 +17,16 @@ class DBWorker:
     def dell(self):
         pass
 
+    def get_id(self, t_name, id_column, name_column, name):
+        sql = ("SELECT [%(ic)s] FROM [%(t)s] WHERE [%(nc)s] = %(n)s" % {'ic': id_column,
+                                                                                't': t_name,
+                                                                                'nc': name_column,
+                                                                                'n': "\"" + name + "\""}
+               )
+        self.cursor.execute(sql)
+        return self.cursor.fetchone()[0]
+
+
     def get_only_one_table(self, t_name, data):
         self.cursor.execute("SELECT [%(d)s] FROM [%(t)s]" % {'d': data, 't': t_name})
         buf = list()
@@ -60,8 +70,8 @@ class DBWorker:
         reqin = "INSERT INTO [%s] (" % t_name
         reqval = "VALUES ("
         for row in list(data.items())[:len(data)]:
-                reqin = reqin + " [" + row[0] + "],"
-                reqval = reqval + " '" + row[1] + "',"
+                reqin = reqin + " [" + str(row[0]) + "],"
+                reqval = reqval + " '" + str(row[1]) + "',"
 
         reqin = reqin[:len(reqin) - 1]
         reqval = reqval[:len(reqval) - 1]
