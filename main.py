@@ -8,30 +8,6 @@ import json
 import sys
 
 
-def info_table_dialog():
-    db = DB_Worker.DBWorker()
-    buf, head = db.get_info_table()
-    DialogWindow = QtWidgets.QDialog()
-    DialogWindow.resize(1000, 1000)
-    DialogWindow.setWindowTitle("Dialog")
-    table = QtWidgets.QTableWidget(DialogWindow)
-    table.resize(500, 500)
-    table.setColumnCount(len(buf[0]))
-    table.setRowCount(len(buf))
-    table.setHorizontalHeaderLabels(head)
-    row = 0
-    for tup in buf:
-        col = 0
-        for item in tup:
-            cellinfo = QtWidgets.QTableWidgetItem(str(item))
-            table.setItem(row, col, cellinfo)
-            col += 1
-        row += 1
-
-    DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-    DialogWindow.exec_()
-
-
 def error_dialog(text):
     DialogWindow = QtWidgets.QDialog()
     setupwin = dialog.Ui_Dialog()
@@ -44,7 +20,7 @@ def error_dialog(text):
 def table_dialog(item):  # Создание диалогового окна с таблицей
     DialogWindow = QtWidgets.QDialog()
     DialogWindow.resize(1000, 1000)
-    DialogWindow.setWindowTitle("Dialog")
+    DialogWindow.setWindowTitle(str(item.text()))
     table = QtWidgets.QTableWidget(DialogWindow)
     db = DB_Worker.DBWorker()
     buf, head = db.show_all_table(str(item.text()))
@@ -85,11 +61,12 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
 
         # -- Кнопки
-        self.pushButton_SQB.clicked.connect(lambda: info_table_dialog())
+        self.pushButton_SQB.clicked.connect(lambda: self.info_table_dialog())
         self.ButtonComboBox.clicked.connect(lambda: self.create_item_request())
         # -- Лист таблиц
         self.listWidget.itemClicked.connect(table_dialog)
 
+        self.radioButN.setChecked(True)
         self.init_combobox()
 
         with open("package.json", "r") as read_file:
@@ -101,6 +78,28 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for row in tables:
             self.ComboBox.addItem(str(row[0]))
 
+    def info_table_dialog(self):
+        db = DB_Worker.DBWorker()
+        buf, head = db.get_info_table(self.radioButB.isChecked(), self.radioButM.isChecked())
+        DialogWindow = QtWidgets.QDialog()
+        DialogWindow.resize(1000, 1000)
+        DialogWindow.setWindowTitle("Dialog")
+        table = QtWidgets.QTableWidget(DialogWindow)
+        table.resize(700, 500)
+        table.setColumnCount(len(buf[0]))
+        table.setRowCount(len(buf))
+        table.setHorizontalHeaderLabels(head)
+        row = 0
+        for tup in buf:
+            col = 0
+            for item in tup:
+                cellinfo = QtWidgets.QTableWidgetItem(str(item))
+                table.setItem(row, col, cellinfo)
+                col += 1
+            row += 1
+
+        DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+        DialogWindow.exec_()
 
 
     # -------------- Создание и работа с GroupBox запросами в DB

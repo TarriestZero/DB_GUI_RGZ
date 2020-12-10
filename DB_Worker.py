@@ -1,6 +1,4 @@
 import sqlite3
-import os
-import json
 
 
 class DBWorker:
@@ -11,14 +9,19 @@ class DBWorker:
     def __del__(self):
         self.db.close()
 
-    def get_info_table(self):
+    def get_info_table(self, B, M):
         head = ["First Name", "Phone Number", "Date", "Name", "Price"]
-        self.cursor.execute(""" 
-                            SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price
-                            FROM Buyers
-                            JOIN Orders ON Buyers.ClientId = Orders.ClientId
-                            JOIN Product ON Orders.ProdId = Product.ProdId
-                            """)
+        sql =   """ 
+                SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price
+                FROM Buyers
+                JOIN Orders ON Buyers.ClientId = Orders.ClientId
+                JOIN Product ON Orders.ProdId = Product.ProdId
+                 """
+        if B:
+            sql = sql + " WHERE Product.Price >= 1000"
+        if M:
+            sql = sql + " WHERE Product.Price < 1000"
+        self.cursor.execute(sql)
         return self.cursor.fetchall(), head
 
     def dell(self):
