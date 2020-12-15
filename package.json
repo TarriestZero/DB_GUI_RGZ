@@ -11,6 +11,9 @@
       "Drop-down_list":
       [
         {}
+      ],
+      "NotForSearch":[
+        "ClientId"
       ]
 
     }
@@ -29,6 +32,11 @@
           "ClientId": ["Buyers", "First Name"],
           "ProdId": ["Product", "Name"]
         }
+      ],
+      "NotForSearch":[
+        "ClientId",
+        "OrdId",
+        "ProdId"
       ]
     }
   ],
@@ -44,6 +52,10 @@
       "Drop-down_list":
       [
         {}
+      ],
+      "NotForSearch": [
+        "ProdId",
+        "Note"
       ]
     }
   ]

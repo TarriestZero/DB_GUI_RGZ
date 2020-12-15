@@ -59,10 +59,14 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for row in tables:
             self.listWidget.addItem(str(row[0]))
 
-
+        self.ReqLine.setDisabled(True)
+        self.pushButton_FIND.setDisabled(True)
         # -- Кнопки
         self.pushButton_SQB.clicked.connect(lambda: self.info_table_dialog())
         self.ButtonComboBox.clicked.connect(lambda: self.create_item_request())
+        self.ComboBoxT3Tname.activated[str].connect(self.fill_combobox_column)
+        self.ComboBoxT3Cname.activated[str].connect(self.activate_find)
+        self.pushButton_FIND.clicked.connect(lambda: self.find_table())
         # -- Лист таблиц
         self.listWidget.itemClicked.connect(table_dialog)
 
@@ -77,10 +81,52 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         tables = db.get_name_all_tables()
         for row in tables:
             self.ComboBox.addItem(str(row[0]))
+            self.ComboBoxT3Tname.addItem(str(row[0]))
+
+    def find_table(self):
+        db = DB_Worker.DBWorker()
+        buf, head = db.get_info_table_search(str(self.ComboBoxT3Tname.currentText()),
+                                             str(self.ComboBoxT3Cname.currentText()),
+                                             str(self.ReqLine.text()))
+        DialogWindow = QtWidgets.QDialog()
+        DialogWindow.resize(1000, 1000)
+        DialogWindow.setWindowTitle("Dialog")
+        table = QtWidgets.QTableWidget(DialogWindow)
+        table.resize(700, 500)
+        table.setColumnCount(len(buf[0]))
+        table.setRowCount(len(buf))
+        table.setHorizontalHeaderLabels(head)
+        row = 0
+        for tup in buf:
+            col = 0
+            for item in tup:
+                cellinfo = QtWidgets.QTableWidgetItem(str(item))
+                table.setItem(row, col, cellinfo)
+                col += 1
+            row += 1
+
+        DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+        DialogWindow.exec_()
+
+    def fill_combobox_column(self, table_name):
+        self.ComboBoxT3Cname.clear()
+        db = DB_Worker.DBWorker()
+        buf, head = db.show_all_table(table_name)
+        for row in head:
+            if self.conf[table_name][0]["NotForSearch"].count(row) == 0:
+                self.ComboBoxT3Cname.addItem(str(row))
+
+
+
+    def activate_find(self):
+        self.ReqLine.setDisabled(False)
+        self.pushButton_FIND.setDisabled(False)
 
     def info_table_dialog(self):
+        self.check_phone.isChecked()
         db = DB_Worker.DBWorker()
-        buf, head = db.get_info_table(self.radioButB.isChecked(), self.radioButM.isChecked())
+        buf, head = db.get_info_table(self.radioButB.isChecked(), self.radioButM.isChecked(),
+                                      self.check_phone.isChecked(), self.check_date.isChecked())
         DialogWindow = QtWidgets.QDialog()
         DialogWindow.resize(1000, 1000)
         DialogWindow.setWindowTitle("Dialog")

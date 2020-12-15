@@ -9,14 +9,37 @@ class DBWorker:
     def __del__(self):
         self.db.close()
 
-    def get_info_table(self, B, M):
-        head = ["First Name", "Phone Number", "Date", "Name", "Price"]
+    def get_info_table_search(self, table, column, data):
+        head = ["First Name", "Phone Number", "Orders.Date", "ProductName", "Price"]
         sql =   """ 
                 SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price
                 FROM Buyers
                 JOIN Orders ON Buyers.ClientId = Orders.ClientId
                 JOIN Product ON Orders.ProdId = Product.ProdId
                  """
+        sql = sql + " WHERE %(t)s.[%(c)s] = '%(f)s'" % {'t': table, 'c': column, 'f': data}
+        self.cursor.execute(sql)
+        return self.cursor.fetchall(), head
+
+
+    def get_info_table(self, B, M, Phone, Date):
+        head = ["First Name"]
+        select = "SELECT Buyers.[First Name], "
+        if Phone:
+            head.append("Phone Number")
+            select += "Buyers.[Phone Number], "
+        if Date:
+            head.append("Date")
+            select += "Orders.Date, "
+        head.append("ProductName")
+        head.append("Price")
+        select += "Product.Name, Product.Price "
+        sql =   """
+                FROM Buyers
+                JOIN Orders ON Buyers.ClientId = Orders.ClientId
+                JOIN Product ON Orders.ProdId = Product.ProdId
+                 """
+        sql = select + sql
         if B:
             sql = sql + " WHERE Product.Price >= 1000"
         if M:
