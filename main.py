@@ -49,8 +49,8 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         # и т.д. в файле design.py
         super().__init__()
 
-        self.req_LineEdit = list()   # Заполняемые строки для запросов
-        self.req_label = list()     # Названия полей заполнения для запросов
+        self.req_LineEdit = list()  # Заполняемые строки для запросов
+        self.req_label = list()  # Названия полей заполнения для запросов
         self.req_ComboBox = list()  # комбобоксы для заполнения при запросе
 
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
@@ -67,9 +67,12 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.ComboBoxT3Tname.activated[str].connect(self.fill_combobox_column)
         self.ComboBoxT3Cname.activated[str].connect(self.activate_find)
         self.pushButton_FIND.clicked.connect(lambda: self.find_table())
+        self.radioButSale.clicked.connect(lambda: self.set_name_sale())
+        self.radioButSnot.clicked.connect(lambda: self.set_name_find())
         # -- Лист таблиц
         self.listWidget.itemClicked.connect(table_dialog)
 
+        self.radioButSnot.setChecked(True)
         self.radioButN.setChecked(True)
         self.init_combobox()
 
@@ -83,30 +86,57 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.ComboBox.addItem(str(row[0]))
             self.ComboBoxT3Tname.addItem(str(row[0]))
 
+    def set_name_sale(self):
+        self.LabelLCinfo.setText("   Добавить скидку всем,\nкто удовлетворяет запросу")
+        self.LabelLCinfo.setGeometry(QtCore.QRect(100, 20, 200, 50))
+        self.pushButton_FIND.setText("Присвоить скидку")
+        self.pushButton_FIND.setGeometry(QtCore.QRect(120, 220, 150, 50))
+
+    def set_name_find(self):
+        self.LabelLCinfo.setText("Текст для поиска")
+        self.LabelLCinfo.setGeometry(QtCore.QRect(130, 20, 200, 50))
+        self.pushButton_FIND.setText("Найти")
+        self.pushButton_FIND.setGeometry(QtCore.QRect(140, 220, 100, 50))
+
     def find_table(self):
         db = DB_Worker.DBWorker()
-        buf, head = db.get_info_table_search(str(self.ComboBoxT3Tname.currentText()),
-                                             str(self.ComboBoxT3Cname.currentText()),
-                                             str(self.ReqLine.text()))
-        DialogWindow = QtWidgets.QDialog()
-        DialogWindow.resize(1000, 1000)
-        DialogWindow.setWindowTitle("Dialog")
-        table = QtWidgets.QTableWidget(DialogWindow)
-        table.resize(700, 500)
-        table.setColumnCount(len(buf[0]))
-        table.setRowCount(len(buf))
-        table.setHorizontalHeaderLabels(head)
-        row = 0
-        for tup in buf:
-            col = 0
-            for item in tup:
-                cellinfo = QtWidgets.QTableWidgetItem(str(item))
-                table.setItem(row, col, cellinfo)
-                col += 1
-            row += 1
+        if self.radioButSale.isChecked():
+            if 0 < int(self.ReqLineSale.text()) < 100:
+                report = db.set_sale(str(self.ComboBoxT3Tname.currentText()),
+                                     str(self.ComboBoxT3Cname.currentText()),
+                                     str(self.ReqLine.text()),
+                                     int(self.ReqLineSale.text())
+                                     )
+                error_dialog(report)
+            else:
+                error_dialog("Введите корректо значение скидка в %")
+        else:
+            buf, head = db.get_info_table_search(str(self.ComboBoxT3Tname.currentText()),
+                                                 str(self.ComboBoxT3Cname.currentText()),
+                                                 str(self.ReqLine.text()))
+            if len(buf) == 0:
+                error_dialog("Нет такой записи")
+                return
 
-        DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
-        DialogWindow.exec_()
+            DialogWindow = QtWidgets.QDialog()
+            DialogWindow.resize(1000, 1000)
+            DialogWindow.setWindowTitle("Dialog")
+            table = QtWidgets.QTableWidget(DialogWindow)
+            table.resize(700, 500)
+            table.setColumnCount(len(buf[0]) - 1)
+            table.setRowCount(len(buf))
+            table.setHorizontalHeaderLabels(head)
+            row = 0
+            for tup in buf:
+                col = 0
+                for item in tup[:len(tup) - 1]:
+                    cellinfo = QtWidgets.QTableWidgetItem(str(item))
+                    table.setItem(row, col, cellinfo)
+                    col += 1
+                row += 1
+
+            DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
+            DialogWindow.exec_()
 
     def fill_combobox_column(self, table_name):
         self.ComboBoxT3Cname.clear()
@@ -115,8 +145,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for row in head:
             if self.conf[table_name][0]["NotForSearch"].count(row) == 0:
                 self.ComboBoxT3Cname.addItem(str(row))
-
-
 
     def activate_find(self):
         self.ReqLine.setDisabled(False)
@@ -146,7 +174,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
         DialogWindow.setWindowModality(QtCore.Qt.ApplicationModal)
         DialogWindow.exec_()
-
 
     # -------------- Создание и работа с GroupBox запросами в DB
 
@@ -199,10 +226,10 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             i += 1
         for row in self.req_ComboBox:
             req[self.req_label[i].text()] = db.get_id(
-                    self.conf[t_name][0]["Drop-down_list"][0][self.req_label[i].text()][0],
-                    self.req_label[i].text(),
-                    self.conf[t_name][0]["Drop-down_list"][0][self.req_label[i].text()][1],
-                    row.currentText())
+                self.conf[t_name][0]["Drop-down_list"][0][self.req_label[i].text()][0],
+                self.req_label[i].text(),
+                self.conf[t_name][0]["Drop-down_list"][0][self.req_label[i].text()][1],
+                row.currentText())
             i += 1
 
         tf, info = db.check_not_null(t_name, req, self.conf[t_name][0]["AEncrem"])
@@ -213,7 +240,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         for row in list(req.items()):
             if row[1] == "":
                 req.pop(row[0])
-                try:    # пытаемся удалить пустые строки из исключения
+                try:  # пытаемся удалить пустые строки из исключения
                     self.conf[t_name][0]["Punisher"].remove(row[0])
                 except:
                     pass
@@ -227,8 +254,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 error_dialog(ttf)
         else:
             error_dialog("error in %(d)s need %(i)s" % {'d': str(info[1]), 'i': str(info[2])})
-
-
 
     def __del_last_but__(self):
         try:
@@ -248,7 +273,6 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             pass
 
     # ---------------
-
 
 
 def main():

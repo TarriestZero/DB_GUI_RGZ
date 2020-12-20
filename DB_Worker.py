@@ -11,8 +11,8 @@ class DBWorker:
 
     def get_info_table_search(self, table, column, data):
         head = ["First Name", "Phone Number", "Orders.Date", "ProductName", "Price"]
-        sql =   """ 
-                SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price
+        sql = """ 
+                SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price, Orders.OrdId
                 FROM Buyers
                 JOIN Orders ON Buyers.ClientId = Orders.ClientId
                 JOIN Product ON Orders.ProdId = Product.ProdId
@@ -21,6 +21,20 @@ class DBWorker:
         self.cursor.execute(sql)
         return self.cursor.fetchall(), head
 
+    def set_sale(self, tname, column, search, proc):
+        buf, head = self.get_info_table_search(tname, column, search)
+        del head
+        if len(buf) != 0:
+            for tup in buf:
+                #sql = "UPDATE Orders SET Sale = " + str(proc / 100) + " WHERE OrdId = " + str(tup[len(tup) - 1:][0])
+                sql = "UPDATE Orders SET Sale = %(p)s WHERE OrdId = %(i)s" \
+                       % {'p': str(proc/100), 'i': str(tup[len(tup) - 1:][0])}
+
+                self.cursor.execute(sql)
+                self.db.commit()
+            return "Успех"
+        else:
+            return "Нет записей, удовлетворяющих поиск"
 
     def get_info_table(self, B, M, Phone, Date):
         head = ["First Name"]
@@ -34,7 +48,7 @@ class DBWorker:
         head.append("ProductName")
         head.append("Price")
         select += "Product.Name, Product.Price "
-        sql =   """
+        sql = """
                 FROM Buyers
                 JOIN Orders ON Buyers.ClientId = Orders.ClientId
                 JOIN Product ON Orders.ProdId = Product.ProdId
@@ -52,13 +66,12 @@ class DBWorker:
 
     def get_id(self, t_name, id_column, name_column, name):
         sql = ("SELECT [%(ic)s] FROM [%(t)s] WHERE [%(nc)s] = %(n)s" % {'ic': id_column,
-                                                                                't': t_name,
-                                                                                'nc': name_column,
-                                                                                'n': "\"" + name + "\""}
+                                                                        't': t_name,
+                                                                        'nc': name_column,
+                                                                        'n': "\"" + name + "\""}
                )
         self.cursor.execute(sql)
         return self.cursor.fetchone()[0]
-
 
     def get_only_one_table(self, t_name, data):
         self.cursor.execute("SELECT [%(d)s] FROM [%(t)s]" % {'d': data, 't': t_name})
@@ -103,8 +116,8 @@ class DBWorker:
         reqin = "INSERT INTO [%s] (" % t_name
         reqval = "VALUES ("
         for row in list(data.items())[:len(data)]:
-                reqin = reqin + " [" + str(row[0]) + "],"
-                reqval = reqval + " '" + str(row[1]) + "',"
+            reqin = reqin + " [" + str(row[0]) + "],"
+            reqval = reqval + " '" + str(row[1]) + "',"
 
         reqin = reqin[:len(reqin) - 1]
         reqval = reqval[:len(reqval) - 1]
