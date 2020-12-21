@@ -60,6 +60,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.listWidget.addItem(str(row[0]))
 
         self.ReqLine.setDisabled(True)
+        self.ReqLineSale.setDisabled(True)
         self.pushButton_FIND.setDisabled(True)
         # -- Кнопки
         self.pushButton_SQB.clicked.connect(lambda: self.info_table_dialog())
@@ -87,12 +88,14 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             self.ComboBoxT3Tname.addItem(str(row[0]))
 
     def set_name_sale(self):
+        self.ReqLineSale.setDisabled(False)
         self.LabelLCinfo.setText("   Добавить скидку всем,\nкто удовлетворяет запросу")
         self.LabelLCinfo.setGeometry(QtCore.QRect(100, 20, 200, 50))
         self.pushButton_FIND.setText("Присвоить скидку")
         self.pushButton_FIND.setGeometry(QtCore.QRect(120, 220, 150, 50))
 
     def set_name_find(self):
+        self.ReqLineSale.setDisabled(True)
         self.LabelLCinfo.setText("Текст для поиска")
         self.LabelLCinfo.setGeometry(QtCore.QRect(130, 20, 200, 50))
         self.pushButton_FIND.setText("Найти")
@@ -254,6 +257,8 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
                 error_dialog(ttf)
         else:
             error_dialog("error in %(d)s need %(i)s" % {'d': str(info[1]), 'i': str(info[2])})
+
+        error_dialog("Успех")
 
     def __del_last_but__(self):
         try:

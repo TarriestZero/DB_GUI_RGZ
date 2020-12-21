@@ -10,9 +10,11 @@ class DBWorker:
         self.db.close()
 
     def get_info_table_search(self, table, column, data):
-        head = ["First Name", "Phone Number", "Orders.Date", "ProductName", "Price"]
+        head = ["First Name", "Phone Number", "Orders.Date", "ProductName", "Price", "Sale", "Price With Sale"]
         sql = """ 
-                SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price, Orders.OrdId
+                SELECT Buyers.[First Name], Buyers.[Phone Number], Orders.Date, Product.Name, Product.Price,
+                (Product.Price * Orders.Sale) as Sale, 
+                (Product.Price - (Product.Price * Orders.Sale)) as [Price with Sale], Orders.OrdId
                 FROM Buyers
                 JOIN Orders ON Buyers.ClientId = Orders.ClientId
                 JOIN Product ON Orders.ProdId = Product.ProdId
@@ -47,7 +49,10 @@ class DBWorker:
             select += "Orders.Date, "
         head.append("ProductName")
         head.append("Price")
-        select += "Product.Name, Product.Price "
+        head.append("Sale")
+        head.append("Price with Sale")
+        select += "Product.Name, Product.Price, (Product.Price * Orders.Sale) as Sale, " \
+                  "(Product.Price - (Product.Price * Orders.Sale)) as [Price with Sale]"
         sql = """
                 FROM Buyers
                 JOIN Orders ON Buyers.ClientId = Orders.ClientId
