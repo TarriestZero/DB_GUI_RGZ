@@ -53,7 +53,9 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.req_label = list()  # Названия полей заполнения для запросов
         self.req_ComboBox = list()  # комбобоксы для заполнения при запросе
 
+
         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
+
         db = DB_Worker.DBWorker()
         tables = db.get_name_all_tables()
         for row in tables:
@@ -70,6 +72,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.pushButton_FIND.clicked.connect(lambda: self.find_table())
         self.radioButSale.clicked.connect(lambda: self.set_name_sale())
         self.radioButSnot.clicked.connect(lambda: self.set_name_find())
+
         # -- Лист таблиц
         self.listWidget.itemClicked.connect(table_dialog)
 
@@ -101,9 +104,20 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.pushButton_FIND.setText("Найти")
         self.pushButton_FIND.setGeometry(QtCore.QRect(140, 220, 100, 50))
 
+    def available_id_inputted(self):
+        if self.CheckBox.isChecked():
+            self.req_LineEdit[0].setDisabled(False)
+        else:
+            self.req_LineEdit[0].setDisabled(True)
+
     def find_table(self):
         db = DB_Worker.DBWorker()
         if self.radioButSale.isChecked():
+            try:
+                int(self.ReqLineSale.text())
+            except:
+                error_dialog("Введите число в поле 'скидка'")
+                return
             if 0 < int(self.ReqLineSale.text()) < 100:
                 report = db.set_sale(str(self.ComboBoxT3Tname.currentText()),
                                      str(self.ComboBoxT3Cname.currentText()),
@@ -180,6 +194,8 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
 
     # -------------- Создание и работа с GroupBox запросами в DB
 
+
+
     def create_item_request(self):
         self.__del_last_but__()
         self.req_button = QtWidgets.QPushButton(self.groupBox)  # Кнопка для проведения запроса
@@ -188,6 +204,13 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
         self.req_button.clicked.connect(lambda: self.request(t_name))
         db = DB_Worker.DBWorker()
         buf, head = db.show_all_table(t_name)
+
+        self.CheckBox = QtWidgets.QCheckBox(self.groupBox)
+        self.CheckBox.setGeometry(QtCore.QRect(380, y, 150, 40))
+        self.CheckBox.setObjectName("CheckBoxForReq")
+        self.CheckBox.clicked.connect(lambda: self.available_id_inputted())
+        self.CheckBox.show()
+
         for i in range(len(head)):
             if list(self.conf[t_name][0]["Drop-down_list"][0].keys()).count(head[i]):
                 ComboBox = QtWidgets.QComboBox(self.groupBox)
@@ -214,6 +237,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             label_in_group.show()
             self.req_label.append(label_in_group)
             y += 45
+        self.req_LineEdit[0].setDisabled(True)
         self.req_button.setGeometry(QtCore.QRect(150, y + 50, 150, 40))
         self.req_button.setText("Request")
         self.req_button.setObjectName("ReqButton")
@@ -270,6 +294,7 @@ class ExampleApp(QtWidgets.QMainWindow, design.Ui_MainWindow):
             for row in self.req_ComboBox:
                 row.deleteLater()
 
+            self.CheckBox.deleteLater()
             self.req_label.clear()
             self.req_LineEdit.clear()
             self.req_ComboBox.clear()
